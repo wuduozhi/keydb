@@ -3,7 +3,7 @@ package structkeys
 import (
 	"bytes"
 	"fmt"
-	"github.com/robaho/keydb"
+	"github.com/wuduozhi/keydb"
 	"strings"
 	"time"
 )

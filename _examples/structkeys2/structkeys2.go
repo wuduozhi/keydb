@@ -1,8 +1,8 @@
 package structkeys
 
 import (
-	"github.com/robaho/keydb"
-	. "github.com/robaho/keydb/_examples/structkeys"
+	"github.com/wuduozhi/keydb"
+	. "github.com/wuduozhi/keydb/_examples/structkeys"
 	"time"
 )
 

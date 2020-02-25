@@ -25,7 +25,7 @@ purge removed key/value, it currently stores an empty []byte
 
 # How To Use
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}

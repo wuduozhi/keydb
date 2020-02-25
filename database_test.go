@@ -1,4 +1,4 @@
-package keydb_test
+package keydb
 
 import (
 	"bytes"
@@ -8,12 +8,11 @@ import (
 	"testing"
 	"time"
 )
-import "github.com/robaho/keydb"
 
 func TestDatabase(t *testing.T) {
-	keydb.Remove("test/mydb")
+	Remove("test/mydb")
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -49,7 +48,7 @@ func TestDatabase(t *testing.T) {
 		t.Fatal("unable to remove by key", err)
 	}
 	_, err = tx.Get([]byte("mykey"))
-	if err != keydb.KeyNotFound {
+	if err != KeyNotFound {
 		t.Fatal("should not of found removed key")
 	}
 	tx.Commit()
@@ -58,7 +57,7 @@ func TestDatabase(t *testing.T) {
 		t.Fatal("unable to close database", err)
 	}
 
-	db, err = keydb.Open("test/mydb", true)
+	db, err = Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -68,16 +67,16 @@ func TestDatabase(t *testing.T) {
 		t.Fatal("unable to create transaction", err)
 	}
 	_, err = tx.Get([]byte("mykey"))
-	if err != keydb.KeyNotFound {
+	if err != KeyNotFound {
 		t.Fatal("should not of found removed key")
 	}
 	tx.Commit()
 }
 
 func TestCommit(t *testing.T) {
-	keydb.Remove("test/mydb")
+	Remove("test/mydb")
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	tx, err := db.BeginTX("main")
 	if err != nil {
 		t.Fatal("unable to create transaction", err)
@@ -124,9 +123,9 @@ func TestCommit(t *testing.T) {
 }
 
 func TestCommitSync(t *testing.T) {
-	keydb.Remove("test/mydb")
+	Remove("test/mydb")
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	tx, err := db.BeginTX("main")
 	if err != nil {
 		t.Fatal("unable to create transaction", err)
@@ -181,9 +180,9 @@ func TestCommitSync(t *testing.T) {
 }
 
 func TestDatabaseIterator(t *testing.T) {
-	keydb.Remove("test/mydb")
+	Remove("test/mydb")
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -249,9 +248,9 @@ func TestDatabaseIterator(t *testing.T) {
 }
 
 func TestSegmentMerge(t *testing.T) {
-	keydb.Remove("test/mydb")
+	Remove("test/mydb")
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -291,7 +290,7 @@ func TestSegmentMerge(t *testing.T) {
 		t.Fatal("there should only be NaxSegments*2 files at this point, count is ", count)
 	}
 
-	db, err = keydb.Open("test/mydb", false)
+	db, err = Open("test/mydb", false)
 	if err != nil {
 		t.Fatal("unable to open database", err)
 	}
@@ -322,9 +321,9 @@ func countFiles(path string) int {
 }
 
 func TestPersistence(t *testing.T) {
-	keydb.Remove("test/mydb")
+	Remove("test/mydb")
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -342,7 +341,7 @@ func TestPersistence(t *testing.T) {
 
 	db.Close()
 
-	db, err = keydb.Open("test/mydb", false)
+	db, err = Open("test/mydb", false)
 	if err != nil {
 		t.Fatal("database did not exist", err)
 	}
@@ -365,9 +364,9 @@ func TestPersistence(t *testing.T) {
 }
 
 func TestRemovedKeys(t *testing.T) {
-	keydb.Remove("test/mydb")
+	Remove("test/mydb")
 
-	db, err := keydb.Open("test/mydb", true)
+	db, err := Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -391,7 +390,7 @@ func TestRemovedKeys(t *testing.T) {
 		t.Fatal("unable to close database", err)
 	}
 
-	db, err = keydb.Open("test/mydb", true)
+	db, err = Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -405,12 +404,12 @@ func TestRemovedKeys(t *testing.T) {
 		t.Fatal("unable to remove key", err)
 	}
 	_, err = tx.Get([]byte("mykey"))
-	if err != keydb.KeyNotFound {
+	if err != KeyNotFound {
 		t.Fatal("should not of found key", err)
 	}
 	tx.Commit()
 	err = db.CloseWithMerge(1)
-	db, err = keydb.Open("test/mydb", true)
+	db, err = Open("test/mydb", true)
 	if err != nil {
 		t.Fatal("unable to create database", err)
 	}
@@ -419,7 +418,7 @@ func TestRemovedKeys(t *testing.T) {
 		t.Fatal("unable to create transaction", err)
 	}
 	_, err = tx.Get([]byte("mykey"))
-	if err != keydb.KeyNotFound {
+	if err != KeyNotFound {
 		t.Fatal("should not of found key", err)
 	}
 	itr, err := tx.Lookup(nil, nil)
@@ -427,7 +426,7 @@ func TestRemovedKeys(t *testing.T) {
 		t.Fatal("unable to open iterator", err)
 	}
 	_, _, err = itr.Next()
-	if err != keydb.EndOfIterator {
+	if err != EndOfIterator {
 		t.Fatal("iterator should be empty", err)
 	}
 	tx.Commit()

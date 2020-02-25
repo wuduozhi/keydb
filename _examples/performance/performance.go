@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/robaho/keydb"
+	"github.com/wuduozhi/keydb"
 	"log"
 	"math/rand"
 	"runtime"
