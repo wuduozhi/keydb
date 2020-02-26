@@ -14,12 +14,13 @@ func (msi *multiSegmentIterator) peekKey() ([]byte, error) {
 	panic("peekKey called on multiSegmentIterator")
 }
 
+// 遍历multiSegment
 func (msi *multiSegmentIterator) Next() (key []byte, value []byte, err error) {
 	var currentIndex = -1
 	var lowest []byte
 
 	// find the lowest next non-deleted key in any of the iterators
-
+	// 找lowest key，并获取其所属的segments[]下标currentIndex
 	for i := len(msi.iterators) - 1; i >= 0; i-- {
 		iterator := msi.iterators[i]
 
@@ -49,6 +50,7 @@ func (msi *multiSegmentIterator) Next() (key []byte, value []byte, err error) {
 		return nil, nil, EndOfIterator
 	}
 
+	// 最小key/value
 	key, value, err = msi.iterators[currentIndex].Next()
 
 	// advance all of the iterators past the current
@@ -62,6 +64,7 @@ func (msi *multiSegmentIterator) Next() (key []byte, value []byte, err error) {
 			if err != nil {
 				break
 			}
+			// 去重
 			if key == nil || !less(lowest, key) {
 				msi.Next()
 			} else {

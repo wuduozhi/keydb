@@ -9,6 +9,53 @@ import (
 	"time"
 )
 
+func TestDatabase0(t *testing.T){
+	Remove("test/mydb")
+	db, err := Open("test/mydb", true)
+	if err != nil {
+		t.Fatal("unable to create database", err)
+	}
+
+	txA, err := db.BeginTX("a")
+	//txB, err := db.BeginTX("a")
+	records := 1000000
+	for i:=1;i< records;i++{
+		txA.Put([]byte(fmt.Sprintf("key%v",i)),[]byte(fmt.Sprintf("value%v",i)))
+		if i % 2 == 0 {
+			//txB.Put([]byte(fmt.Sprintf("key%v",i)),[]byte(fmt.Sprintf("value%v",i+1)))
+		}
+	}
+	txA.CommitSync()
+	//txB.CommitSync()
+	err = db.Close()
+	if err != nil {
+		t.Fatal("unable to close database", err)
+	}
+
+}
+
+func TestOpen(t *testing.T){
+	db, err := Open("test/mydb", true)
+	if err != nil {
+		t.Fatal("unable to create database", err)
+	}
+
+	txA, err := db.BeginTX("a")
+	txB, err := db.BeginTX("a")
+	records := 100
+	for i:=0;i< records;i++{
+		key := fmt.Sprintf("key%v",i)
+		value,_ := txA.Get([]byte(key))
+		fmt.Printf("%v %v \n",key,string(value))
+	}
+	txA.Commit()
+	txB.Commit()
+	err = db.Close()
+	if err != nil {
+		t.Fatal("unable to close database", err)
+	}
+}
+
 func TestDatabase(t *testing.T) {
 	Remove("test/mydb")
 

@@ -7,12 +7,12 @@ import (
 
 func TestMultiSegment(t *testing.T) {
 	m1 := newMemorySegment()
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 50; i++ {
 		m1.Put([]byte(fmt.Sprint("mykey", i)), []byte(fmt.Sprint("myvalue", i)))
 	}
 	m2 := newMemorySegment()
-	for i := 100000; i < 150000; i++ {
-		m2.Put([]byte(fmt.Sprint("mykey", i)), []byte(fmt.Sprint("myvalue", i)))
+	for i := 10; i < 20; i++ {
+		m2.Put([]byte(fmt.Sprint("mykey", i)), []byte(fmt.Sprint("myvalue", i+1)))
 	}
 
 	ms := newMultiSegment([]segment{m1, m2})
@@ -22,13 +22,14 @@ func TestMultiSegment(t *testing.T) {
 	}
 	count := 0
 	for {
-		_, _, err := itr.Next()
+		key,val, err := itr.Next()
+		fmt.Printf("%v %v\n",string(key),string(val))
 		if err != nil {
 			break
 		}
 		count++
 	}
-	if count != 150000 {
+	if count != 50 {
 		t.Fatal("incorrect count", count)
 	}
 

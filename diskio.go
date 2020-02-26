@@ -49,6 +49,7 @@ func writeSegmentToDisk(db *Database, table string, seg segment) error {
 	for _, v := range db.tables[table].segments {
 		if v == seg {
 			if ds != nil {
+				// 将 memorySegment 替换为 diskSegment
 				segments = append(segments, ds)
 			}
 		} else {
@@ -61,6 +62,7 @@ func writeSegmentToDisk(db *Database, table string, seg segment) error {
 	return nil
 }
 
+// 将迭代器包含的数据全部写入给定key/data文件，并封装成diskSegment返
 func writeAndLoadSegment(keyFilename, dataFilename string, itr LookupIterator) (segment, error) {
 
 	keyFilenameTmp := keyFilename + ".tmp"
@@ -79,6 +81,7 @@ func writeAndLoadSegment(keyFilename, dataFilename string, itr LookupIterator) (
 	return newDiskSegment(keyFilename, dataFilename, keyIndex), nil
 }
 
+// 将迭代器包含的数据全部写入给定key/data文件，返回写入记录的key集合
 func writeSegmentFiles(keyFName, dataFName string, itr LookupIterator) ([][]byte, error) {
 
 	var keyIndex [][]byte

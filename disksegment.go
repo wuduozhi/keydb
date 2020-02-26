@@ -55,6 +55,7 @@ type diskSegmentIterator struct {
 
 var errKeyRemoved = errors.New("key removed")
 
+// 从指定目录读取指定table的key/data文件(以{table}.开头)，并解析为segment数组返回. 如果没有指定的文件，返回空数组
 func loadDiskSegments(directory string, table string) []segment {
 	files, err := ioutil.ReadDir(directory)
 	if err != nil {

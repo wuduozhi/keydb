@@ -44,6 +44,7 @@ func mergeDiskSegments(db *Database) {
 	}
 }
 
+// 合并一个数据库db下面的所有表的diskSegment，单表最多保存的segment数量由segmentCount指定
 func mergeDiskSegments0(db *Database, segmentCount int) error {
 	db.Lock()
 	copy := make([]*internalTable, 0)
@@ -61,6 +62,7 @@ func mergeDiskSegments0(db *Database, segmentCount int) error {
 	return nil
 }
 
+// 合并单个表的diskSegmen
 func mergeTableSegments(db *Database, table *internalTable, segmentCount int) error {
 
 	var index = 0
@@ -71,17 +73,18 @@ func mergeTableSegments(db *Database, table *internalTable, segmentCount int) er
 		segments := table.segments
 		table.Unlock()
 
+		// 表包含的segment数量小于最大值，不需要合并
 		if len(segments) <= segmentCount {
 			return nil
 		}
 
+		// 一次最多合并的segment数量，默认为segment总数的一半
 		maxMergeSize := len(segments) / 2
 		if maxMergeSize < 4 {
 			maxMergeSize = 4
 		}
 
 		// ensure that only valid disk segments are merged
-
 		mergable := make([]*diskSegment, 0)
 
 		for _, s := range segments[index:] {
@@ -97,12 +100,14 @@ func mergeTableSegments(db *Database, table *internalTable, segmentCount int) er
 			}
 		}
 
+		// 合并到最后1个文件,将游标回滚，重新开始合并操作
 		if len(mergable) < 2 {
 			index = 0
 			time.Sleep(100 * time.Millisecond)
 			continue
 		}
 
+		// 最后一个segment的id, 由于segments本身有序，最后一个segment即是最新的segment
 		id := mergable[len(mergable)-1].id
 		segments = segments[index : index+len(mergable)]
 
@@ -138,6 +143,7 @@ func mergeTableSegments(db *Database, table *internalTable, segmentCount int) er
 			}
 		}
 
+		/*将合并的segment放回segments, 替换掉被合并的mergable的位置, 保持合并前后的顺序一直*/
 		newsegments := make([]segment, 0)
 
 		newsegments = append(newsegments, segments[:index]...)
@@ -154,6 +160,7 @@ func mergeTableSegments(db *Database, table *internalTable, segmentCount int) er
 
 var mergeSeq uint64
 
+// 将多个segment合并到一个diskSegment
 func mergeDiskSegments1(dbpath string, table string, id uint64, segments []segment) (segment, error) {
 
 	base := filepath.Join(dbpath, table+".merged.")
